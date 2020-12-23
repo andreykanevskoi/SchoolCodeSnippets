@@ -169,6 +169,240 @@ void addProduct(vector<product>& products, const vector<string>& params) {
 	products.push_back(temp);
 }
 
+// DELETE PRICE 50
+
+void deleteProducts(vector<product>& products, const vector<string>& params) {
+	string field = params[0];
+	string value = params[1];
+	               
+	vector<product> newProducts;
+	
+	if (field == "ID") {
+		uint16_t v = stoi(value);
+
+		for (auto i : products)
+			if (i.ID != v)
+				newProducts.push_back(i);
+	}
+
+	if (field == "NAME") {
+		for (auto i : products)
+			if (i.NAME != value)
+				newProducts.push_back(i);
+	}
+
+	if (field == "DATE") {
+		for (auto i : products)
+			if (i.DATE != value)
+				newProducts.push_back(i);
+	}
+
+	if (field == "QUANTITY") {
+		uint16_t v = stoi(value);
+
+		for (auto i : products)
+			if (i.QUANTITY != v)
+				newProducts.push_back(i);
+	}
+
+	if (field == "PRICE") {
+		uint16_t v = stoi(value);
+
+		for (auto i : products)
+			if (i.PRICE != v)
+				newProducts.push_back(i);
+	}
+
+	products = newProducts;
+	return;
+}
+
+// FIND -c ALL NAME Banana
+
+// XX.XX.XXXX - было
+// XXXX.XX.XX - стало
+
+string revDate(string date) {
+	char delim = date[2];
+	string result = date;
+
+	result[0] = date[6];
+	result[1] = date[7];
+	result[2] = date[8];
+	result[3] = date[9];
+
+	result[4] = delim;
+
+	result[5] = date[3];
+	result[6] = date[4];
+
+	result[7] = delim;
+
+	result[8] = date[0];
+	result[9] = date[1];
+	
+	return result;
+}
+
+//  1 date1 > date2
+const int DATE_BIGGER = 1;
+//  0 date1 = date2
+const int DATE_EQUAL = 0;
+// -1 date1 < date2
+const int DATE_EARLIER = -1;
+
+int cmpDate(string date1, string date2) {
+	date1 = revDate(date1);
+	date2 = revDate(date2);
+
+	if (date1 < date2)
+		return DATE_EARLIER;
+
+	if (date1 == date2)
+		return DATE_EQUAL;
+
+	return DATE_BIGGER;
+}
+
+void findProducts(const vector<product>& products, const vector<string>& params, const int reqNum) {
+	string mode = params[0];
+	string type = params[1];
+	string field = params[2];
+	
+	vector<product> searchResults;
+
+	if (type == "ALL") {
+		string value = params[3];
+
+		if (field == "ID") {
+			uint16_t v = stoi(value);
+
+			for (auto i : products)
+				if (i.ID == v)
+					searchResults.push_back(i);
+		}
+
+		if (field == "NAME") {
+			for (auto i : products)
+				if (i.NAME == value)
+					searchResults.push_back(i);
+		}
+
+		if (field == "DATE") {
+			for (auto i : products)
+				if (i.DATE == value)
+					searchResults.push_back(i);
+		}
+
+		if (field == "QUANTITY") {
+			uint16_t v = stoi(value);
+
+			for (auto i : products)
+				if (i.QUANTITY == v)
+					searchResults.push_back(i);
+		}
+
+		if (field == "PRICE") {
+			uint16_t v = stoi(value);
+
+			for (auto i : products)
+				if (i.PRICE == v)
+					searchResults.push_back(i);
+		}
+	}
+
+	if (type == "MIN") {
+		if (field == "ID") {
+			uint16_t min = products[0].ID;
+
+			for (auto i : products)
+				if (i.ID < min)
+					min = i.ID;
+
+			for (auto i : products)
+				if (i.ID == min)
+					searchResults.push_back(i);
+		}
+
+		if (field == "NAME") {
+			string min = products[0].NAME;
+
+			for (auto i : products)
+				if (i.NAME < min)
+					min = i.NAME;
+
+			for (auto i : products)
+				if (i.NAME == min)
+					searchResults.push_back(i);
+		}
+
+		if (field == "DATE") {
+			string min = products[0].DATE;
+
+			for (auto i : products)
+				if (cmpDate(i.DATE, min) == DATE_EARLIER)
+					min = i.DATE;
+
+			for (auto i : products)
+				if (i.DATE == min)
+					searchResults.push_back(i);
+		}
+
+		if (field == "QUANTITY") {
+			uint16_t min = products[0].QUANTITY;
+
+			for (auto i : products)
+				if (i.QUANTITY < min)
+					min = i.QUANTITY;
+
+			for (auto i : products)
+				if (i.QUANTITY == min)
+					searchResults.push_back(i);
+		}
+
+		if (field == "PRICE") {
+			uint16_t min = products[0].PRICE;
+
+			for (auto i : products)
+				if (i.PRICE < min)
+					min = i.PRICE;
+
+			for (auto i : products)
+				if (i.PRICE == min)
+					searchResults.push_back(i);
+		}
+	}
+
+	if (mode == "-c") {
+		writeProductsToConsole(searchResults);
+	}
+	else {
+		string fileName = "Request" + to_string(reqNum) + ".txt";
+		writeProductsToFile(searchResults, fileName);
+	}
+
+}
+
+// GET_BAD_PRODUCTS -c 23.12.2020
+
+void getBadProducts(const vector<product>& products, const vector<string>& params, const int reqNum) {
+	string mode = params[0];
+	string date = params[1];
+
+	vector<product> searchResults;
+	
+	/*
+		TO DO!
+	*/
+
+	if (mode == "-c") {
+		writeProductsToConsole(searchResults);
+	}
+	else {
+		string fileName = "Request" + to_string(reqNum) + ".txt";
+		writeProductsToFile(searchResults, fileName);
+	}
+}
 
 /*
 	находит и выполняет команду command с параметрами params в рамках запроса reqNum
@@ -195,6 +429,12 @@ int executeCommand(const string& command,
 
 	if (command == "ADD")
 		addProduct(products, params);
+
+	if (command == "DELETE")
+		deleteProducts(products, params);
+
+	if (command == "FIND")
+		findProducts(products, params, reqNum);
 
 	if (command == "EXIT")
 		return EXIT_FLAG;
